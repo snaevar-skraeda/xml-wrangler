@@ -20,6 +20,9 @@ from datetime import datetime
 
 class xmlfile:
     filename = ''
+    export_filename = ''
+    contents = []
+    quicksave = True
 
 xml = xmlfile()
 
@@ -27,161 +30,203 @@ xml = xmlfile()
 # Function Definitions (XML Operations)
 #----------------------------------------------------------------------------------------------------------------
 
+#---------------------------------------
+# Generate export filename
+#---------------------------------------
+
 def generate_export_filename(filename):
     now = datetime.now()
     date_time = now.strftime("%m-%d-%Y_%H.%M.%S")
-    return f"{filename.split(".")[0]}_noselfclosingtags_{date_time}.{filename.split(".")[1]}"
+    export_filename = f"{filename.split(".")[0]}_{date_time}.{filename.split(".")[1]}"
+    return export_filename
 
-def remove_selfclosing_tags(filename):
-    export_filename = generate_export_filename(filename)
-    print(f"Converting file: {os.path.dirname(__file__)}/{filename}")
+#---------------------------------------
+# Update export filename display
+#---------------------------------------
 
-    with open(filename, "r") as file:
-        lines = file.readlines()
+def update_export_filename_display(export_filename):
+    short_export_filename = get_short_filename(export_filename)
+    labelExportedFile.config(text=f"File exported to: {short_export_filename}")
 
-    no_selfclosing_tags = []
-    for line in lines:
+#---------------------------------------
+# Remove selfclosing tags
+#---------------------------------------
+
+def remove_selfclosing_tags():
+    xml_list = xml.contents
+
+    xml.contents = []
+    for line in xml_list:
         if ("/>" in line):
             start = line.find("<")
             end = line.find("/>")
             tag_name = line[start+1:end].strip()
             closingtags = f"{line[:start]}<{tag_name}></{tag_name}>\n"
-            no_selfclosing_tags.append(closingtags)
+            xml.contents.append(closingtags)
         else:
-            no_selfclosing_tags.append(line)
+            xml.contents.append(line)
 
-    with open(export_filename, "w") as output:
-        for line in no_selfclosing_tags:
-            output.write(str(line))
+    if(xml.quicksave == True):
+        export_xml_file()
 
-    # update which file is being referred to
-    xml.filename = export_filename
-#    update_text_box_contents()
+#---------------------------------------
+# Remove text between files
+#---------------------------------------
 
-def remove_text_between_files(filename):
-    export_filename = generate_export_filename(filename)
-    print(f"Converting file: {os.path.dirname(__file__)}/{filename}")
+def remove_text_between_files():
+    xml_list = xml.contents
 
-    with open(filename, "r") as file:
-        lines = file.readlines()
-
-    no_text = []
-    for line in lines:
+    xml.contents = []
+    for line in xml_list:
         res = re.search(">.*</", line)
-    #    res = re.search("\>.*\<\/", line)
         if (res != None):
             span = res.span()
             line_with_no_text = f"{line[:span[0]+1]}{line[span[1]-2:]}"
-            no_text.append(line_with_no_text)
+            xml.contents.append(line_with_no_text)
         else:
-            no_text.append(line)
+            xml.contents.append(line)
 
-    with open(export_filename, "w") as output:
-        for line in no_text:
-            output.write(str(line))
-    
-    xml.filename = export_filename
+    if(xml.quicksave == True):
+        export_xml_file()
 
-def add_translation_subtags(filename):
-    export_filename = generate_export_filename(filename)
-    print(f"Converting file: {os.path.dirname(__file__)}/{filename}")
+#---------------------------------------
+# Add translation subtags
+#---------------------------------------
 
-    with open(filename, "r") as file:
-        lines = file.readlines()
+def add_translation_subtags():
+    xml_list = xml.contents
 
-    add_subtags = []
-    for line in lines:
+    xml.contents = []
+    for line in xml_list:
         begin = line.find('>')
         if(begin != -1):
-            add_subtags.append(f"{line[:begin]} t=(){line[begin:]}")
+            xml.contents.append(f"{line[:begin]} t=(){line[begin:]}")
         else:
-            add_subtags.append(line)
+            xml.contents.append(line)
 
-    with open(export_filename, "w") as output:
-        for line in add_subtags:
-            output.write(str(line))
-
-    xml.filename = export_filename
+    if(xml.quicksave == True):
+        export_xml_file()
 
 #---------------------------------------
 # Remove translation subtags
 #---------------------------------------
 
-def remove_translation_subtags(filename):
-    export_filename = generate_export_filename(filename)
-    print(f"Converting file: {os.path.dirname(__file__)}/{filename}")
+def remove_translation_subtags():
+    xml_list = xml.contents
 
-    with open(filename, "r") as file:
-        lines = file.readlines()
-
-    no_translations = []
-    for line in lines:
+    xml.contents = []
+    for line in xml_list:
         begin = line.find(' t=(')
         if(begin != -1):
             end = line.find(')')
-            no_translations.append(f"{line[:begin]}{line[end+1:]}")
+            xml.contents.append(f"{line[:begin]}{line[end+1:]}")
         else:
-            no_translations.append(line)
+            xml.contents.append(line)
 
-    with open(export_filename, "w") as output:
-        for line in no_translations:
+    if(xml.quicksave == True):
+        export_xml_file()
+
+#---------------------------------------
+# Read XML file
+#---------------------------------------
+
+def read_xml_file(filename):
+    with open(file=filename, mode="r", encoding="utf-8") as file:
+        lines = file.readlines()
+    return(lines)
+
+#---------------------------------------
+# Export XML file
+#---------------------------------------
+
+def export_xml_file():
+    xml.export_filename = generate_export_filename(xml.filename)
+    with open(xml.export_filename, "w") as output:
+        for line in xml.contents:
             output.write(str(line))
-
-    # update which file is being referred to
-    xml.filename = export_filename
-#    update_text_box_contents()
+    update_export_filename_display(xml.export_filename)
 
 #---------------------------------------
 # Update text box
 #---------------------------------------
 
 def update_text_box_contents():
-    text_box.delete("1.0", "end")
-    with open(xml.filename, "r") as file:
-        lines = file.readlines()
-    for line in lines:
-        text_box.insert(tk.END, line)
+    textboxXML.delete("1.0", "end")
+    for line in xml.contents:
+        textboxXML.insert(tk.END, line)
 
 #----------------------------------------------------------------------------------------------------------------
 # Function Definitions (Buttons)
 #----------------------------------------------------------------------------------------------------------------
 
+def enable_buttons():
+    buttonReplace.config(state=tk.NORMAL)
+    buttonRemove.config(state=tk.NORMAL)
+    buttonBoth.config(state=tk.NORMAL)
+    buttonAddTranslations.config(state=tk.NORMAL)
+    buttonRemoveTranslations.config(state=tk.NORMAL)
+    buttonSave.config(state=tk.NORMAL)
+    buttonSaveAs.config(state=tk.NORMAL)
+
 def open_file():
     # TODO: Permit user to search for other file types, simply default to XML without locking out other types
     xml.filename = filedialog.askopenfilename(filetypes=[("XML files", "*.xml")])
+
     if xml.filename:
-        buttonReplace.config(state=tk.NORMAL)
-        buttonRemove.config(state=tk.NORMAL)
-        buttonBoth.config(state=tk.NORMAL)
-        buttonAddTranslations.config(state=tk.NORMAL)
-        buttonRemoveTranslations.config(state=tk.NORMAL)
+        xml.contents = read_xml_file(xml.filename)
+        filename_short = get_short_filename(xml.filename)
+        labelCurrentFile.config(text=f"File selected: {filename_short}")
+        enable_buttons()
         update_text_box_contents()
+
+def get_short_filename(filename_with_path):
+    filename_short = os.path.split(filename_with_path)[1]
+    return filename_short
 
 def xml_replace():
     if xml.filename:
-        remove_selfclosing_tags(xml.filename)
+        remove_selfclosing_tags()
         update_text_box_contents()
 
 def xml_remove():
     if xml.filename:
-        remove_text_between_files(xml.filename)
+        remove_text_between_files()
         update_text_box_contents()
 
 def xml_both():
     if xml.filename:
-        remove_text_between_files(xml.filename)
-        remove_selfclosing_tags(xml.filename)
+        remove_text_between_files()
+        remove_selfclosing_tags()
         update_text_box_contents()
 
 def xml_add_subtags():
     if xml.filename:
-        add_translation_subtags(xml.filename)
+        add_translation_subtags()
         update_text_box_contents()
 
 def xml_remove_subtags():
     if xml.filename:
-        remove_translation_subtags(xml.filename)
+        remove_translation_subtags()
         update_text_box_contents()
+
+def save():
+    xml.contents = textboxXML.get('1.0', 'end-1c')
+    export_xml_file()
+
+def save_as():
+    # Prompts user for file name, then calls save function
+    xml.filename = filedialog.asksaveasfilename(defaultextension=".xml")
+    print("Save As... button pressed")
+    print(xml.export_filename)
+    save()
+
+def toggle_quicksave():
+    if toggleQuicksave.config('relief')[-1] == 'sunken':
+        toggleQuicksave.config(relief="raised", text="Quicksave Disabled")
+        xml.quicksave = False
+    else:
+        toggleQuicksave.config(relief="sunken", text="Quicksave Enabled")
+        xml.quicksave = True
 
 def exit_program():
     root.destroy() #exit program loop
@@ -191,44 +236,62 @@ def exit_program():
 #----------------------------------------------------------------------------------------------------------------
 
 root = tk.Tk(className="electronic sheets XML wrangler")
-root.geometry("600x600")
+root.geometry("720x690")
 
-label = tk.Label(root, font='Arial 10 bold', height=2, text="XML Cleanup")
-label.pack()
-
-#Open file button
-buttonSelectFile = tk.Button(root, width=26, text="Open file", command=open_file)
-buttonSelectFile.pack()
-
-#Replace self-closing tags button
+labelXMLCleanup = tk.Label(root, font='Arial 10 bold', height=2, text="XML Cleanup")
+buttonOpenFile = tk.Button(root, width=26, text="Open file", command=open_file)
 buttonReplace = tk.Button(root, state=tk.DISABLED, width=26, text="Replace self-closing tags", command=xml_replace)
-buttonReplace.pack()
-
-#Remove text button
 buttonRemove = tk.Button(root, state=tk.DISABLED, width=26, text="Remove text between tags", command=xml_remove)
-buttonRemove.pack()
-
-#Replace self-closing tags and remove text
 buttonBoth = tk.Button(root, state=tk.DISABLED, width=26, text="Perform both operations", command=xml_both)
-buttonBoth.pack()
 
-label = tk.Label(root, font='Arial 10 bold', height=2, text="Translation sub-tags")
-label.pack()
-
-#Add translation sub-tags
-buttonAddTranslations = tk.Button(root, state=tk.DISABLED, width=26, text="Add translation sub-tags", command=xml_add_subtags)
-buttonAddTranslations.pack()
-
-#Remove translation sub-tags
-buttonRemoveTranslations = tk.Button(root, state=tk.DISABLED, width=26, text="Remove translation sub-tags", command=xml_remove_subtags)
-buttonRemoveTranslations.pack()
-
-#Quit program
 buttonExit = tk.Button(root, width=26, text="Exit", command=exit_program)
-buttonExit.pack()
 
-text_box = tk.Text(root, height=200, width=200)
-text_box.pack(side='right')
-text_box.insert(tk.END, "XML will be displayed here.\n")
+labelTranslation = tk.Label(root, font='Arial 10 bold', height=2, text="Translation sub-tags")
+buttonAddTranslations = tk.Button(root, state=tk.DISABLED, width=26, text="Add translation sub-tags", command=xml_add_subtags)
+buttonRemoveTranslations = tk.Button(root, state=tk.DISABLED, width=26, text="Remove translation sub-tags", command=xml_remove_subtags)
+
+labelSaveFile = tk.Label(root, font='Arial 10 bold', height=2, text="Save File")
+toggleQuicksave = tk.Button(text="Quicksave Enabled", width=26, relief="sunken", command=toggle_quicksave)
+buttonSave = tk.Button(root, state=tk.DISABLED, width=26, text="Save", command=save)
+buttonSaveAs = tk.Button(root, state=tk.DISABLED, width=26, text="Save As...", command=save_as)
+
+labelCurrentFile = tk.Label(root, font='Courier 10', height=2, text="")
+labelExportedFile = tk.Label(root, font='Courier 10', height=2, text="")
+textboxXML = tk.Text(root, width=88, padx=2)
+textboxXML.insert(tk.END, "XML will be displayed here.\n")
+
+#--------------------------------
+# Add widgets to Tkinter grid
+#--------------------------------
+
+# XML Cleanup
+labelXMLCleanup.grid(row=0, column=0, padx=2)
+buttonOpenFile.grid(row=1, column=0, padx=2)
+buttonReplace.grid(row=2, column=0, padx=2)
+buttonRemove.grid(row=3, column=0, padx=2)
+buttonBoth.grid(row=4, column=0, padx=2)
+
+# Translation subtags
+labelTranslation.grid(row=0, column=1, padx=2)
+buttonAddTranslations.grid(row=1, column=1, padx=2)
+buttonRemoveTranslations.grid(row=2, column=1, padx=2)
+
+# Save File
+labelSaveFile.grid(row=0, column=2, padx=2)
+toggleQuicksave.grid(row=1, column=2, padx=2)
+buttonSave.grid(row=2, column=2, padx=2)
+buttonSaveAs.grid(row=3, column=2, padx=2)
+
+# Exit button
+buttonExit.grid(row=5, column=0, padx=2)
+
+# Current file
+labelCurrentFile.grid(row=6, column=0, padx=2, columnspan=3)
+
+# Exported file name
+labelExportedFile.grid(row=7, column=0, padx=2, columnspan=3)
+
+# Text box area
+textboxXML.grid(row=8, column=0, columnspan=10)
 
 root.mainloop()
