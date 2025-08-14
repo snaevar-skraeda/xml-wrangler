@@ -54,9 +54,6 @@ for line in lines:
     else:
         add_subtags.append(line)
 
-# for line in add_subtags:
-#     print(line.rstrip())
-
 with open(export_filename, "w") as output:
     for line in add_subtags:
         output.write(str(line))

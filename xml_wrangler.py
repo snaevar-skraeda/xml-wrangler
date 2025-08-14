@@ -23,6 +23,10 @@ class xmlfile:
 
 xml = xmlfile()
 
+#----------------------------------------------------------------------------------------------------------------
+# Function Definitions (XML Operations)
+#----------------------------------------------------------------------------------------------------------------
+
 def generate_export_filename(filename):
     now = datetime.now()
     date_time = now.strftime("%m-%d-%Y_%H.%M.%S")
@@ -52,7 +56,7 @@ def remove_selfclosing_tags(filename):
 
     # update which file is being referred to
     xml.filename = export_filename
-    update_text_box_contents()
+#    update_text_box_contents()
 
 def remove_text_between_files(filename):
     export_filename = generate_export_filename(filename)
@@ -76,11 +80,34 @@ def remove_text_between_files(filename):
         for line in no_text:
             output.write(str(line))
     
-    # update which file is being referred to
     xml.filename = export_filename
-    update_text_box_contents()
 
-def remove_translations(filename):
+def add_translation_subtags(filename):
+    export_filename = generate_export_filename(filename)
+    print(f"Converting file: {os.path.dirname(__file__)}/{filename}")
+
+    with open(filename, "r") as file:
+        lines = file.readlines()
+
+    add_subtags = []
+    for line in lines:
+        begin = line.find('>')
+        if(begin != -1):
+            add_subtags.append(f"{line[:begin]} t=(){line[begin:]}")
+        else:
+            add_subtags.append(line)
+
+    with open(export_filename, "w") as output:
+        for line in add_subtags:
+            output.write(str(line))
+
+    xml.filename = export_filename
+
+#---------------------------------------
+# Remove translation subtags
+#---------------------------------------
+
+def remove_translation_subtags(filename):
     export_filename = generate_export_filename(filename)
     print(f"Converting file: {os.path.dirname(__file__)}/{filename}")
 
@@ -102,7 +129,11 @@ def remove_translations(filename):
 
     # update which file is being referred to
     xml.filename = export_filename
-    update_text_box_contents()
+#    update_text_box_contents()
+
+#---------------------------------------
+# Update text box
+#---------------------------------------
 
 def update_text_box_contents():
     text_box.delete("1.0", "end")
@@ -111,96 +142,92 @@ def update_text_box_contents():
     for line in lines:
         text_box.insert(tk.END, line)
 
-def select_file():
-    xml.filename = filedialog.askopenfilename(filetypes=[("XML files", "*.xml")])
-    #filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
-#    print(xml.filename)
-# TODO: Add button enable/disable feature here
-# button.config(state=tk.E)
-# button.config(state=tk.DISABLED)
-    if xml.filename:
-        update_text_box_contents()
-        # buttonReplace.config(state=tk.ACTIVE)
-        # buttonRemove.config(state=tk.ACTIVE)
-        # buttonBoth.config(state=tk.ACTIVE)
-        # buttonRemoveTranslations.config(state=tk.ACTIVE)
+#----------------------------------------------------------------------------------------------------------------
+# Function Definitions (Buttons)
+#----------------------------------------------------------------------------------------------------------------
 
+def open_file():
+    # TODO: Permit user to search for other file types, simply default to XML without locking out other types
+    xml.filename = filedialog.askopenfilename(filetypes=[("XML files", "*.xml")])
+    if xml.filename:
         buttonReplace.config(state=tk.NORMAL)
         buttonRemove.config(state=tk.NORMAL)
         buttonBoth.config(state=tk.NORMAL)
+        buttonAddTranslations.config(state=tk.NORMAL)
         buttonRemoveTranslations.config(state=tk.NORMAL)
+        update_text_box_contents()
 
 def xml_replace():
-#    filename = filedialog.askopenfilename()
     if xml.filename:
         remove_selfclosing_tags(xml.filename)
         update_text_box_contents()
-#        exit_program()
-#        root.destroy() #exit program loop
 
 def xml_remove():
-#    filename = filedialog.askopenfilename()
     if xml.filename:
         remove_text_between_files(xml.filename)
         update_text_box_contents()
-        #exit_program()
-#        root.destroy() #exit program loop
 
 def xml_both():
-#    filename = filedialog.askopenfilename()
     if xml.filename:
         remove_text_between_files(xml.filename)
         remove_selfclosing_tags(xml.filename)
         update_text_box_contents()
-#        exit_program()
+
+def xml_add_subtags():
+    if xml.filename:
+        add_translation_subtags(xml.filename)
+        update_text_box_contents()
 
 def xml_remove_subtags():
     if xml.filename:
-        remove_translations(xml.filename)
+        remove_translation_subtags(xml.filename)
         update_text_box_contents()
 
 def exit_program():
     root.destroy() #exit program loop
 
+#----------------------------------------------------------------------------------------------------------------
+# Main Program (Tkinter GUI)
+#----------------------------------------------------------------------------------------------------------------
 
-root = tk.Tk(className="Electronic sheets XML tool")
-root.geometry("500x500")
+root = tk.Tk(className="electronic sheets XML wrangler")
+root.geometry("600x600")
 
-label = tk.Label(root, text="XML Cleanup Utilities")
+label = tk.Label(root, font='Arial 10 bold', height=2, text="XML Cleanup")
 label.pack()
 
 #Open file button
-buttonSelectFile = tk.Button(root, text="Open file", command=select_file)
+buttonSelectFile = tk.Button(root, width=26, text="Open file", command=open_file)
 buttonSelectFile.pack()
 
 #Replace self-closing tags button
-buttonReplace = tk.Button(root, text="Replace self-closing tags", command=xml_replace)
-buttonReplace.config(state=tk.DISABLED)
+buttonReplace = tk.Button(root, state=tk.DISABLED, width=26, text="Replace self-closing tags", command=xml_replace)
 buttonReplace.pack()
 
 #Remove text button
-buttonRemove = tk.Button(root, text="Remove text between tags", command=xml_remove)
-buttonRemove.config(state=tk.DISABLED)
+buttonRemove = tk.Button(root, state=tk.DISABLED, width=26, text="Remove text between tags", command=xml_remove)
 buttonRemove.pack()
 
 #Replace self-closing tags and remove text
-buttonBoth = tk.Button(root, text="Perform both operations", command=xml_both)
-buttonBoth.config(state=tk.DISABLED)
+buttonBoth = tk.Button(root, state=tk.DISABLED, width=26, text="Perform both operations", command=xml_both)
 buttonBoth.pack()
 
-label = tk.Label(root, text="Translation sub-tags")
+label = tk.Label(root, font='Arial 10 bold', height=2, text="Translation sub-tags")
 label.pack()
 
+#Add translation sub-tags
+buttonAddTranslations = tk.Button(root, state=tk.DISABLED, width=26, text="Add translation sub-tags", command=xml_add_subtags)
+buttonAddTranslations.pack()
+
 #Remove translation sub-tags
-buttonRemoveTranslations = tk.Button(root, text="Remove translation sub-tags", command=xml_remove_subtags)
-buttonRemoveTranslations.config(state=tk.DISABLED)
+buttonRemoveTranslations = tk.Button(root, state=tk.DISABLED, width=26, text="Remove translation sub-tags", command=xml_remove_subtags)
 buttonRemoveTranslations.pack()
 
 #Quit program
-buttonExit = tk.Button(root, text="Exit", command=exit_program)
+buttonExit = tk.Button(root, width=26, text="Exit", command=exit_program)
 buttonExit.pack()
 
-text_box = tk.Text(root, height=100, width=100)
+text_box = tk.Text(root, height=200, width=200)
 text_box.pack(side='right')
 text_box.insert(tk.END, "XML will be displayed here.\n")
 
