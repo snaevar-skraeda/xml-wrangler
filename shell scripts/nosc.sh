@@ -1,0 +1,1 @@
+python3 replace_selfclosing_tags.py $1
