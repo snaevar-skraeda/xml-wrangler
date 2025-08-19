@@ -40,7 +40,8 @@ def convert_textbox_string_to_list(textbox_string):
     for line in textbox_list:
         textboxlist_with_newline.append(line+"\n")
     # TODO: Using indexing to fix newline issue. Locate source of issue, prevent get/insert functions from appending newline char to last line
-    return textboxlist_with_newline[:-1]
+    return textboxlist_with_newline
+#    return textboxlist_with_newline[:-1]
 
 #---------------------------------------
 # Terminate newline check
@@ -48,8 +49,9 @@ def convert_textbox_string_to_list(textbox_string):
 
 # Removes final line from list if it happens to be an empty line
 def terminating_newline_check(xml_list):
-    if xml_list[-1] == "\n":
-        return xml_list[:-1]
+# TODO: Debut issue with last line disappearing
+#    if xml_list[-1] == "\n":
+#        return xml_list[:-1]
     return xml_list
 
 #---------------------------------------
@@ -158,6 +160,60 @@ def xml_remove_translation_subtags():
             export_xml_file(False)
 
 #---------------------------------------
+# Replace Brackets
+#---------------------------------------
+
+def xml_replace_brackets():
+    if xml.filename:
+        xml_list = textbox_contents_to_list()
+        
+        contents = []
+        for line in xml_list:
+            contents.append(line.replace("<", "&lt;"))
+
+        contents2 = []
+        for line in contents:
+            contents2.append(line.replace(">", "&gt;"))
+
+        update_textbox(contents2)
+
+        if(xml.quicksave == True):
+            export_xml_file(False)
+
+#---------------------------------------
+# XML to One Line
+#---------------------------------------
+
+def xml_one_line():
+    xml_list = textbox_contents_to_list()
+    one_line = ''
+    for line in xml_list:
+        print(one_line)
+#        print(line.strip())
+        one_line = one_line + line.strip()
+#    print(xml_list)
+#    print()
+#    print(type(xml_list))
+#    print(len(xml_list))
+
+    # Only inserting a single line
+    clear_textbox()
+    textboxXML.insert(tk.END, one_line)
+
+
+def xml_CDATA():
+    xml_list = textbox_contents_to_list()
+    one_line = ''
+    for line in xml_list:
+        one_line = one_line + line.strip()
+
+    one_line = f"<![CDATA[{one_line}]]>"
+
+    # Only inserting a single line
+    clear_textbox()
+    textboxXML.insert(tk.END, one_line)
+
+#---------------------------------------
 # Generate export filename
 #---------------------------------------
 
@@ -223,6 +279,9 @@ def enable_buttons():
     buttonBoth.config(state=tk.NORMAL)
     buttonAddTranslations.config(state=tk.NORMAL)
     buttonRemoveTranslations.config(state=tk.NORMAL)
+    buttonReplaceBrackets.config(state=tk.NORMAL)
+    buttonOneLineXML.config(state=tk.NORMAL)
+    buttonCDATA.config(state=tk.NORMAL)
     buttonSave.config(state=tk.NORMAL)
     buttonSaveAs.config(state=tk.NORMAL)
 
@@ -301,6 +360,12 @@ labelExportedFile = tk.Label(root, font='Courier 10', height=2, text="")
 textboxXML = tk.Text(root, width=88, padx=2)
 textboxXML.insert(tk.END, "XML will be displayed here.\n")
 
+# XML Mimimize Widgets
+labelXMLMinimize = tk.Label(root, font='Arial 10 bold', height=2, text="Minimize XML")
+buttonReplaceBrackets = tk.Button(root, state=tk.DISABLED, width=26, text="Replace Brackets", command=xml_replace_brackets)
+buttonOneLineXML = tk.Button(root, state=tk.DISABLED, width=26, text="One Line", command=xml_one_line)
+buttonCDATA = tk.Button(root, state=tk.DISABLED, width=26, text="CDATA", command=xml_CDATA)
+
 #--------------------------------------------------------------------------
 # Add widgets to Tkinter grid
 #--------------------------------------------------------------------------
@@ -325,6 +390,12 @@ buttonSaveAs.grid(row=3, column=2, padx=2)
 
 # Exit button Grid
 buttonExit.grid(row=5, column=0, padx=2)
+
+# Minimize XML Grid
+labelXMLMinimize.grid(row=3, column=1, padx=2)
+buttonReplaceBrackets.grid(row=4, column=1, padx=2)
+buttonOneLineXML.grid(row=5, column=1, padx=2)
+buttonCDATA.grid(row=5, column=2, padx=2)
 
 # Information Display Grid
 labelCurrentFile.grid(row=6, column=0, padx=2, columnspan=3)
