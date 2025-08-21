@@ -26,6 +26,89 @@ class xmlfile:
 xml = xmlfile()
 
 #----------------------------------------------------------------------------------------------------------------
+# SOAPUI DEBUG DATA BLOCK
+#----------------------------------------------------------------------------------------------------------------
+
+soapui_900_data_block_open = """<soapenv:Envelope xmlns:ldk="http://ldk.service.mule.tr.is/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Header>
+      <wsse:Security soapenv:mustUnderstand="1"
+         xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+         xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+         <wsse:UsernameToken wsu:Id="UsernameToken-D289469C4ABE5B289917550796698594">
+            <wsse:Username>sjukrasaga_gtk</wsse:Username>
+            <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">flatir456</wsse:Password>
+            <wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">M35hE53amdudYjL1k6RcLA==</wsse:Nonce>
+            <wsu:Created>2025-08-13T10:07:49.859Z</wsu:Created>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ldk:vistaskjal>
+         <sendandi></sendandi>
+         <starfsmadur></starfsmadur>
+         <tegundskjals>900</tegundskjals>
+         <skjal>"""
+
+soapui_900_data_block_close = """</skjal>
+      </ldk:vistaskjal>
+   </soapenv:Body>
+</soapenv:Envelope>"""
+
+#--------------------013----------------------------
+
+soapui_013_data_block_open = """<soapenv:Envelope xmlns:ldk="http://ldk.service.mule.tr.is/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Header>
+      <wsse:Security soapenv:mustUnderstand="1"
+         xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+         xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+         <wsse:UsernameToken wsu:Id="UsernameToken-D289469C4ABE5B289917550796698594">
+            <wsse:Username>sjukrasaga_gtk</wsse:Username>
+            <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">flatir456</wsse:Password>
+            <wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">M35hE53amdudYjL1k6RcLA==</wsse:Nonce>
+            <wsu:Created>2025-08-13T10:07:49.859Z</wsu:Created>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ldk:vistaskjal>
+         <sendandi></sendandi>
+         <starfsmadur></starfsmadur>
+         <tegundskjals>013</tegundskjals>
+         <skjal>"""
+
+soapui_013_data_block_close = """</skjal>
+      </ldk:vistaskjal>
+   </soapenv:Body>
+</soapenv:Envelope>"""
+
+#--------------------013----------------------------
+
+soapui_104_data_block_open = """<soapenv:Envelope xmlns:ldk="http://ldk.service.mule.tr.is/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Header>
+      <wsse:Security soapenv:mustUnderstand="1"
+         xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+         xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+         <wsse:UsernameToken wsu:Id="UsernameToken-D289469C4ABE5B289917550796698594">
+            <wsse:Username>sjukrasaga_gtk</wsse:Username>
+            <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">flatir456</wsse:Password>
+            <wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">M35hE53amdudYjL1k6RcLA==</wsse:Nonce>
+            <wsu:Created>2025-08-13T10:07:49.859Z</wsu:Created>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soapenv:Header>
+   <soapenv:Body>
+      <ldk:vistaskjal>
+         <sendandi></sendandi>
+         <starfsmadur></starfsmadur>
+         <tegundskjals>104</tegundskjals>
+         <skjal>"""
+
+soapui_104_data_block_close = """</skjal>
+      </ldk:vistaskjal>
+   </soapenv:Body>
+</soapenv:Envelope>"""
+
+#----------------------------------------------------------------------------------------------------------------
 # Function Definitions (XML Operations)
 #----------------------------------------------------------------------------------------------------------------
 
@@ -214,6 +297,72 @@ def xml_CDATA():
     textboxXML.insert(tk.END, one_line)
 
 #---------------------------------------
+# XML to CDATA for SI 900 SOAPUI request (DEBUG)
+#---------------------------------------
+
+def xml_SOAPUI900():
+    xml_CDATA()
+    xml_list = textbox_contents_to_list()
+    one_line = ''
+    for line in xml_list:
+        one_line = one_line + line.strip()
+
+    soapui900text = f"{soapui_900_data_block_open}{one_line}{soapui_900_data_block_close}"
+    clear_textbox()
+    textboxXML.insert(tk.END, soapui900text)
+    # 1. Take CDATA and cram it between the two text blocks
+
+    # 2. Update textbox with full block (ensure it's correct, no indent or spacing issues, test on working XML in SOAPUI)
+    # 3. Copy new textbox block directly to user's clipboard (saves awkward text copying with mouse)
+
+    root.clipboard_clear() #Clears the current clipboard content (ensures that you're not appending to existing clipboard data)
+    root.clipboard_append(soapui900text)
+    clear_textbox()
+
+
+#-------------------------------
+
+def xml_SOAPUI013():
+    xml_CDATA()
+    xml_list = textbox_contents_to_list()
+    one_line = ''
+    for line in xml_list:
+        one_line = one_line + line.strip()
+
+    soapui013text = f"{soapui_013_data_block_open}{one_line}{soapui_013_data_block_close}"
+    clear_textbox()
+    textboxXML.insert(tk.END, soapui013text)
+    # 1. Take CDATA and cram it between the two text blocks
+
+    # 2. Update textbox with full block (ensure it's correct, no indent or spacing issues, test on working XML in SOAPUI)
+    # 3. Copy new textbox block directly to user's clipboard (saves awkward text copying with mouse)
+
+    root.clipboard_clear() #Clears the current clipboard content (ensures that you're not appending to existing clipboard data)
+    root.clipboard_append(soapui013text)
+    clear_textbox()
+
+#-------------------------------
+
+def xml_SOAPUI104():
+    xml_CDATA()
+    xml_list = textbox_contents_to_list()
+    one_line = ''
+    for line in xml_list:
+        one_line = one_line + line.strip()
+
+    soapui104text = f"{soapui_104_data_block_open}{one_line}{soapui_104_data_block_close}"
+    clear_textbox()
+    textboxXML.insert(tk.END, soapui104text)
+    # 1. Take CDATA and cram it between the two text blocks
+
+    # 2. Update textbox with full block (ensure it's correct, no indent or spacing issues, test on working XML in SOAPUI)
+    # 3. Copy new textbox block directly to user's clipboard (saves awkward text copying with mouse)
+
+    root.clipboard_clear() #Clears the current clipboard content (ensures that you're not appending to existing clipboard data)
+    root.clipboard_append(soapui104text)
+    clear_textbox()
+
+#---------------------------------------
 # Generate export filename
 #---------------------------------------
 
@@ -282,6 +431,9 @@ def enable_buttons():
     buttonReplaceBrackets.config(state=tk.NORMAL)
     buttonOneLineXML.config(state=tk.NORMAL)
     buttonCDATA.config(state=tk.NORMAL)
+    buttonSOAPUI900.config(state=tk.NORMAL)
+    buttonSOAPUI013.config(state=tk.NORMAL)
+    buttonSOAPUI104.config(state=tk.NORMAL)
     buttonSave.config(state=tk.NORMAL)
     buttonSaveAs.config(state=tk.NORMAL)
 
@@ -328,10 +480,12 @@ def exit_program():
 #----------------------------------------------------------------------------------------------------------------
 
 # Root Window Settings
-window_height = 720
-window_width = 690
+#window_height = 720
+#window_width = 690
+window_height = 720 #debug
+window_width = 720 #debug
 root = tk.Tk(className="electronic sheets XML wrangler")
-root.geometry(f"{window_height}x{window_width}")
+root.geometry(f"{window_width}x{window_height}")
 
 # XML Cleanup Widgets
 labelXMLCleanup = tk.Label(root, font='Arial 10 bold', height=2, text="XML Cleanup")
@@ -365,6 +519,9 @@ labelXMLMinimize = tk.Label(root, font='Arial 10 bold', height=2, text="Minimize
 buttonReplaceBrackets = tk.Button(root, state=tk.DISABLED, width=26, text="Replace Brackets", command=xml_replace_brackets)
 buttonOneLineXML = tk.Button(root, state=tk.DISABLED, width=26, text="One Line", command=xml_one_line)
 buttonCDATA = tk.Button(root, state=tk.DISABLED, width=26, text="CDATA", command=xml_CDATA)
+buttonSOAPUI900 = tk.Button(root, state=tk.DISABLED, width=26, text="900", command=xml_SOAPUI900)
+buttonSOAPUI013 = tk.Button(root, state=tk.DISABLED, width=26, text="013", command=xml_SOAPUI013)
+buttonSOAPUI104 = tk.Button(root, state=tk.DISABLED, width=26, text="104", command=xml_SOAPUI104)
 
 #--------------------------------------------------------------------------
 # Add widgets to Tkinter grid
@@ -397,9 +554,17 @@ buttonReplaceBrackets.grid(row=4, column=1, padx=2)
 buttonOneLineXML.grid(row=5, column=1, padx=2)
 buttonCDATA.grid(row=5, column=2, padx=2)
 
+buttonSOAPUI900.grid(row=4, column=2, padx=2)
+buttonSOAPUI013.grid(row=5, column=2, padx=2)
+buttonSOAPUI104.grid(row=6, column=2, padx=2)
+
 # Information Display Grid
-labelCurrentFile.grid(row=6, column=0, padx=2, columnspan=3)
-labelExportedFile.grid(row=7, column=0, padx=2, columnspan=3)
-textboxXML.grid(row=8, column=0, columnspan=10)
+#labelCurrentFile.grid(row=6, column=0, padx=2, columnspan=3)
+#labelExportedFile.grid(row=7, column=0, padx=2, columnspan=3)
+#textboxXML.grid(row=8, column=0, columnspan=10)
+
+labelCurrentFile.grid(row=7, column=0, padx=2, columnspan=3) #debug
+labelExportedFile.grid(row=8, column=0, padx=2, columnspan=3) #debug
+textboxXML.grid(row=9, column=0, columnspan=10) #debug
 
 root.mainloop()
